@@ -14,6 +14,12 @@ import java.util.List;
 public class AppController {
     private final StudentDataService dataService;
 
+
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok(dataService.checkdb());
+    }
+
     @GetMapping("/grades/{studentId}")
     public ResponseEntity<List<AppDTOs.GradeDTO>> getGrades(@PathVariable String studentId, @RequestParam String semester) {
         return ResponseEntity.ok(dataService.getGrades(studentId, semester));

@@ -18,6 +18,11 @@ public class StudentDataService {
     private final AttendanceRepository attendanceRepo;
     private final NotificationRepository notifRepo;
 
+    public String checkdb() {
+        notifRepo.count();
+        return "Database connection is working!";
+    }
+
     public List<AppDTOs.GradeDTO> getGrades(String studentId, String semester) {
         return gradeRepo.findByStudentIdAndSemester(studentId, semester).stream()
                 .map(g -> new AppDTOs.GradeDTO(g.getSubject(), g.getTeacherName(), g.getScore15m(), g.getScore45m(), g.getScoreFinal(), g.getScoreAvg()))
