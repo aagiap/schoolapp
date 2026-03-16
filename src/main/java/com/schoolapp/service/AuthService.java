@@ -1,29 +1,53 @@
 package com.schoolapp.service;
 
 import com.schoolapp.dto.AppDTOs;
+import com.schoolapp.entity.Role;
 import com.schoolapp.entity.Student;
+import com.schoolapp.entity.User;
 import com.schoolapp.repository.StudentRepository;
+import com.schoolapp.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final StudentRepository studentRepo;
+    private final UserRepository userRepo;
+    private final StudentRepository studentRepo; // Để lấy thông tin học sinh sau khi login
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AppDTOs.StudentDTO login(AppDTOs.LoginRequest req) {
-        Student s = studentRepo.findByPhone(req.phone())
-                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
-        if (!s.getPassword().equals(req.password())) {
-            throw new RuntimeException("Sai mật khẩu");
+    public AppDTOs.LoginResponse login(AppDTOs.LoginRequest req) {
+        User user = userRepo.findByPhone(req.phone())
+                .orElseThrow(() -> new RuntimeException("Số điện thoại không tồn tại"));
+
+        if (!passwordEncoder.matches(req.password(), user.getPassword())) {
+            throw new RuntimeException("Mật khẩu không chính xác");
         }
-        return new AppDTOs.StudentDTO(s.getStudentId(), s.getFullName(), s.getClassName(), s.getPhone(), s.getEmail(), s.getAcademicYear(), s.getDob());
+
+        List<String> roles = user.getRoles().stream()
+                .map(Role::getRoleName)
+                .toList();
+
+        String token = jwtService.generateToken(user.getPhone(), roles);
+
+        Object profile = null;
+        if (roles.contains("ROLE_STUDENT")) {
+            profile = studentRepo.findByUser(user).orElse(null);
+        }
+
+        return new AppDTOs.LoginResponse(token, roles.get(0), profile);
     }
 
+    @Transactional
     public void resetPassword(AppDTOs.ResetPasswordRequest req) {
-        Student s = studentRepo.findByPhone(req.phone())
-                .orElseThrow(() -> new RuntimeException("Số điện thoại chưa được đăng ký"));
-        s.setPassword(req.newPassword());
-        studentRepo.save(s);
+        User user = userRepo.findByPhone(req.phone())
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+        user.setPassword(passwordEncoder.encode(req.newPassword()));
+        userRepo.save(user);
     }
 }

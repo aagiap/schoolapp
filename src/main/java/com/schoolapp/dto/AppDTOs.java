@@ -7,6 +7,7 @@ import java.util.List;
 public class AppDTOs {
     // Auth & Profile
     public record LoginRequest(String phone, String password) {}
+    public record LoginResponse(String token, String role, Object profile) {}
     public record ResetPasswordRequest(String phone, String newPassword) {}
     public record StudentDTO(String studentId, String fullName, String className, String phone, String email, String academicYear, LocalDate dob) {}
 
