@@ -21,13 +21,13 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Cho phép đăng nhập/OTP
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/student/**").hasAnyRole("STUDENT", "PARENT")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Không dùng Session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
         return http.build();
@@ -35,7 +35,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Mã hóa mật khẩu
+        return new BCryptPasswordEncoder();
     }
 
     public static void main(String[] args) {

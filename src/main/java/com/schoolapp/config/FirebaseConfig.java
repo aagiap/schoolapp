@@ -14,7 +14,6 @@ public class FirebaseConfig {
     @PostConstruct
     public void initialize() {
         try {
-            // Trỏ đến file JSON bạn đã tải ở Bước 1
             InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("firebase-service-account.json");
 
             FirebaseOptions options = FirebaseOptions.builder()

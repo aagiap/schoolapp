@@ -30,7 +30,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userPhone;
 
-        // 1. Kiểm tra xem header có chứa Bearer Token không
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -39,10 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         userPhone = jwtService.extractPhone(jwt);
 
-        // 2. Nếu có phone và chưa được xác thực trong SecurityContext
         if (userPhone != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtService.isTokenValid(jwt)) {
-                // Lấy danh sách roles từ token để phân quyền
                 List<String> roles = jwtService.extractClaim(jwt, claims -> claims.get("roles", List.class));
 
                 var authorities = roles.stream()
