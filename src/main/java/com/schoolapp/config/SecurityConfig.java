@@ -24,7 +24,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll() // Cho phép đăng nhập/OTP
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/student/**").hasAnyRole("STUDENT", "PARENT")
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Không dùng Session
@@ -36,5 +36,13 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); // Mã hóa mật khẩu
+    }
+
+    public static void main(String[] args) {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        String hash = encoder.encode("123456");
+
+        System.out.println(hash);
     }
 }

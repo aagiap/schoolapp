@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -19,6 +21,16 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody AppDTOs.LoginRequest req) {
         try {
             return ResponseEntity.ok(authService.login(req));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/login-firebase")
+    public ResponseEntity<?> loginFirebase(@RequestBody Map<String, String> payload) {
+        try {
+            String idToken = payload.get("idToken");
+            return ResponseEntity.ok(authService.loginWithFirebase(idToken));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
